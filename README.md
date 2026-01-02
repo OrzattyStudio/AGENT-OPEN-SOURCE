@@ -157,7 +157,7 @@ class MyCoordinator:
 ## 🚀 **Get the Full SYNTHESIS**
 
 The complete platform with AI intelligence, orchestration, and 8+ hour autonomy is available at:
-- **Website**: [synthesis.ai](https://synthesis.ai)
+- **Website**: [synthesisai.pages.dev](https://synthesisai.pages.dev)
 - **Join Beta**: Limited spots available
 - **Enterprise**: Custom deployments available
 
@@ -168,4 +168,4 @@ The complete platform with AI intelligence, orchestration, and 8+ hour autonomy 
 **The future of software development is here.** 🔥
 
 **Built with ❤️ by OrzattyStudios & OrzionAI**
-**Framework released under MIT License**
+**Framework released under APACHE 2.0 License**
