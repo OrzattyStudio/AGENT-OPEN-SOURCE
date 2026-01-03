@@ -1,22 +1,15 @@
 """
-SYNTHESIS - MonitorAgent (Open Source Skeleton)
-Monitoring setup and observability specialist
-
-This agent specializes in monitoring setup and observability specialist.
-Framework skeleton - AI intelligence in full SYNTHESIS platform.
+SYNTHESIS - MonitorAgent (Open Source Version)
+System monitoring and performance tracking
 """
 
 from typing import Dict, Any
 from .base_agent import BaseAgent, AgentCapability, AgentResult
-
+import time
 
 class MonitorAgent(BaseAgent):
     """
-    MonitorAgent - Monitoring setup and observability specialist
-
-    Capabilities:
-    - devops
-    - performance optimization
+    MonitorAgent - Checks system status (simulated/local).
     """
 
     def __init__(self):
@@ -26,35 +19,31 @@ class MonitorAgent(BaseAgent):
                 AgentCapability.DEVOPS, AgentCapability.PERFORMANCE_OPTIMIZATION
             ]
         )
+        self.register_tool("check_status", self.check_status, "Checks service availability")
 
     async def execute(self, input_data: Dict[str, Any]) -> AgentResult:
         """
-        Execute monitoring setup and observability specialist task.
-
-        Args:
-            input_data: Task-specific input data
-
-        Returns:
-            AgentResult with processed output
+        Execute monitoring tasks.
+        Input: { "action": "check", "endpoint": "http://..." }
         """
-        # SKELETON FRAMEWORK - Actual AI logic in SYNTHESIS platform
-        #
-        # In the full platform, this agent would:
-        # - Execute specialized tasks
-        # - Process domain-specific logic
-        # - Generate optimized output
+        action = input_data.get("action")
+        
+        if action == "check":
+            endpoint = input_data.get("endpoint", "localhost")
+            status = await self.execute_tool("check_status", endpoint=endpoint)
+            return self.create_success_result(
+                data={"status": status},
+                message=f"Checked status of {endpoint}"
+            )
+        return self.create_error_result("Unknown action", f"Action {action} not supported")
 
-        return self.create_success_result(
-            data={
-                "agent_type": "monitor",
-                "capabilities": ['DEVOPS', 'PERFORMANCE_OPTIMIZATION'],
-                "status": "skeleton_framework",
-                "message": "AI logic implemented in full SYNTHESIS platform"
-            },
-            message="MonitorAgent skeleton execution completed"
-        )
-
-
-# Example usage:
-# agent = MonitorAgent()
-# result = await agent.safe_execute({"task": "example"})
+    def check_status(self, endpoint: str) -> Dict[str, Any]:
+        """Simulate status check"""
+        self.log_thought(f"Pinging {endpoint}...")
+        # In a real tool this would use requests.get
+        return {
+            "endpoint": endpoint,
+            "status": "UP",
+            "latency_ms": 45,
+            "timestamp": time.time()
+        }

@@ -1,60 +1,48 @@
 """
-SYNTHESIS - QAAgent (Open Source Skeleton)
-Quality assurance and testing specialist
-
-This agent specializes in quality assurance and testing specialist.
-Framework skeleton - AI intelligence in full SYNTHESIS platform.
+SYNTHESIS - QAAgent (Open Source Version)
+Quality Assurance and test automation
 """
 
-from typing import Dict, Any
+from typing import Dict, Any, List
 from .base_agent import BaseAgent, AgentCapability, AgentResult
-
 
 class QAAgent(BaseAgent):
     """
-    QAAgent - Quality assurance and testing specialist
-
-    Capabilities:
-    - testing
-    - code review
+    QAAgent - Generates test plans and manual test checklists.
     """
 
     def __init__(self):
         super().__init__(
             name="QAAgent",
             capabilities=[
-                AgentCapability.TESTING, AgentCapability.CODE_REVIEW
+                AgentCapability.TESTING, AgentCapability.PLANNING
             ]
         )
+        self.register_tool("generate_test_plan", self.generate_test_plan, "Generates QA Test Plan")
 
     async def execute(self, input_data: Dict[str, Any]) -> AgentResult:
         """
-        Execute quality assurance and testing specialist task.
-
-        Args:
-            input_data: Task-specific input data
-
-        Returns:
-            AgentResult with processed output
+        Execute QA tasks.
+        Input: { "action": "plan", "feature": "Login" }
         """
-        # SKELETON FRAMEWORK - Actual AI logic in SYNTHESIS platform
-        #
-        # In the full platform, this agent would:
-        # - Execute specialized tasks
-        # - Process domain-specific logic
-        # - Generate optimized output
+        action = input_data.get("action")
+        
+        if action == "plan":
+            feature = input_data.get("feature", "General")
+            plan = await self.execute_tool("generate_test_plan", feature=feature)
+            return self.create_success_result(
+                data={"plan": plan},
+                message=f"Generated test plan for {feature}"
+            )
+        return self.create_error_result("Unknown action", f"Action {action} not supported")
 
-        return self.create_success_result(
-            data={
-                "agent_type": "qa",
-                "capabilities": ['TESTING', 'CODE_REVIEW'],
-                "status": "skeleton_framework",
-                "message": "AI logic implemented in full SYNTHESIS platform"
-            },
-            message="QAAgent skeleton execution completed"
-        )
-
-
-# Example usage:
-# agent = QAAgent()
-# result = await agent.safe_execute({"task": "example"})
+    def generate_test_plan(self, feature: str) -> List[str]:
+        """Generate simple test cases"""
+        self.log_thought(f"Creating test plan for {feature}")
+        return [
+            f"Verify {feature} loads correctly",
+            f"Test {feature} with valid input",
+            f"Test {feature} with invalid input",
+            f"Check error messages for {feature}",
+            f"Verify {feature} performance under load"
+        ]

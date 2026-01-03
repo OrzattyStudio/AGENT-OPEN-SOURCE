@@ -1,60 +1,47 @@
 """
-SYNTHESIS - LegacyAgent (Open Source Skeleton)
-Legacy code modernization and migration specialist
-
-This agent specializes in legacy code modernization and migration specialist.
-Framework skeleton - AI intelligence in full SYNTHESIS platform.
+SYNTHESIS - LegacyAgent (Open Source Version)
+Legacy system maintenance and migration
 """
 
 from typing import Dict, Any
 from .base_agent import BaseAgent, AgentCapability, AgentResult
 
-
 class LegacyAgent(BaseAgent):
     """
-    LegacyAgent - Legacy code modernization and migration specialist
-
-    Capabilities:
-    - code refactoring
-    - architecture
+    LegacyAgent - Identifies deprecated code patterns.
     """
 
     def __init__(self):
         super().__init__(
             name="LegacyAgent",
             capabilities=[
-                AgentCapability.CODE_REFACTORING, AgentCapability.ARCHITECTURE
+                AgentCapability.CODE_REVIEW, AgentCapability.REFACTORING
             ]
         )
+        self.register_tool("check_deprecation", self.check_deprecation, "Checks for deprecated Python 2 patterns")
 
     async def execute(self, input_data: Dict[str, Any]) -> AgentResult:
         """
-        Execute legacy code modernization and migration specialist task.
-
-        Args:
-            input_data: Task-specific input data
-
-        Returns:
-            AgentResult with processed output
+        Execute legacy tasks.
+        Input: { "action": "check", "code": "print 'hello'" }
         """
-        # SKELETON FRAMEWORK - Actual AI logic in SYNTHESIS platform
-        #
-        # In the full platform, this agent would:
-        # - Execute specialized tasks
-        # - Process domain-specific logic
-        # - Generate optimized output
+        action = input_data.get("action")
+        
+        if action == "check":
+            code = input_data.get("code", "")
+            issues = await self.execute_tool("check_deprecation", code=code)
+            return self.create_success_result(
+                data={"issues": issues},
+                message="Legacy code check complete"
+            )
+        return self.create_error_result("Unknown action", f"Action {action} not supported")
 
-        return self.create_success_result(
-            data={
-                "agent_type": "legacy",
-                "capabilities": ['CODE_REFACTORING', 'ARCHITECTURE'],
-                "status": "skeleton_framework",
-                "message": "AI logic implemented in full SYNTHESIS platform"
-            },
-            message="LegacyAgent skeleton execution completed"
-        )
-
-
-# Example usage:
-# agent = LegacyAgent()
-# result = await agent.safe_execute({"task": "example"})
+    def check_deprecation(self, code: str) -> list:
+        """Check legacy patterns"""
+        self.log_thought("Scanning for legacy patterns...")
+        issues = []
+        if "print " in code and "print(" not in code:
+            issues.append("Python 2 print statement detected")
+        if "xrange" in code:
+            issues.append("xrange is deprecated in Python 3")
+        return issues

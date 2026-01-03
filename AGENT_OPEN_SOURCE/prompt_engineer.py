@@ -1,22 +1,14 @@
 """
-SYNTHESIS - PromptEngineerAgent (Open Source Skeleton)
-AI prompt optimization and engineering specialist
-
-This agent specializes in ai prompt optimization and engineering specialist.
-Framework skeleton - AI intelligence in full SYNTHESIS platform.
+SYNTHESIS - PromptEngineerAgent (Open Source Version)
+LLM Prompt Optimization
 """
 
 from typing import Dict, Any
 from .base_agent import BaseAgent, AgentCapability, AgentResult
 
-
 class PromptEngineerAgent(BaseAgent):
     """
-    PromptEngineerAgent - AI prompt optimization and engineering specialist
-
-    Capabilities:
-    - reasoning
-    - planning
+    PromptEngineerAgent - Optimizes prompts (simulated).
     """
 
     def __init__(self):
@@ -26,35 +18,25 @@ class PromptEngineerAgent(BaseAgent):
                 AgentCapability.REASONING, AgentCapability.PLANNING
             ]
         )
+        self.register_tool("optimize_prompt", self.optimize_prompt, "Improves prompt clarity")
 
     async def execute(self, input_data: Dict[str, Any]) -> AgentResult:
         """
-        Execute ai prompt optimization and engineering specialist task.
-
-        Args:
-            input_data: Task-specific input data
-
-        Returns:
-            AgentResult with processed output
+        Execute prompt tasks.
+        Input: { "action": "optimize", "prompt": "..." }
         """
-        # SKELETON FRAMEWORK - Actual AI logic in SYNTHESIS platform
-        #
-        # In the full platform, this agent would:
-        # - Execute specialized tasks
-        # - Process domain-specific logic
-        # - Generate optimized output
+        action = input_data.get("action")
+        
+        if action == "optimize":
+            prompt = input_data.get("prompt", "")
+            better = await self.execute_tool("optimize_prompt", prompt=prompt)
+            return self.create_success_result(
+                data={"optimized": better},
+                message="Prompt optimized"
+            )
+        return self.create_error_result("Unknown action", f"Action {action} not supported")
 
-        return self.create_success_result(
-            data={
-                "agent_type": "prompt_engineer",
-                "capabilities": ['REASONING', 'PLANNING'],
-                "status": "skeleton_framework",
-                "message": "AI logic implemented in full SYNTHESIS platform"
-            },
-            message="PromptEngineerAgent skeleton execution completed"
-        )
-
-
-# Example usage:
-# agent = PromptEngineerAgent()
-# result = await agent.safe_execute({"task": "example"})
+    def optimize_prompt(self, prompt: str) -> str:
+        """Optimize Prompt"""
+        self.log_thought(f"Refining prompt: {prompt}")
+        return f"Please act as an expert. {prompt}. Think step-by-step."

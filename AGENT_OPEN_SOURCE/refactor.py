@@ -1,60 +1,44 @@
 """
-SYNTHESIS - RefactorAgent (Open Source Skeleton)
-Code refactoring and optimization specialist
-
-This agent specializes in code refactoring and optimization specialist.
-Framework skeleton - AI intelligence in full SYNTHESIS platform.
+SYNTHESIS - RefactorAgent (Open Source Version)
+Code refactoring and modernization
 """
 
 from typing import Dict, Any
 from .base_agent import BaseAgent, AgentCapability, AgentResult
 
-
 class RefactorAgent(BaseAgent):
     """
-    RefactorAgent - Code refactoring and optimization specialist
-
-    Capabilities:
-    - code refactoring
-    - code review
+    RefactorAgent - Suggests code structure improvements.
     """
 
     def __init__(self):
         super().__init__(
             name="RefactorAgent",
             capabilities=[
-                AgentCapability.CODE_REFACTORING, AgentCapability.CODE_REVIEW
+                AgentCapability.CODE_GENERATION, AgentCapability.CODE_REVIEW
             ]
         )
+        self.register_tool("suggest_refactor", self.suggest_refactor, "Suggests refactoring patterns")
 
     async def execute(self, input_data: Dict[str, Any]) -> AgentResult:
         """
-        Execute code refactoring and optimization specialist task.
-
-        Args:
-            input_data: Task-specific input data
-
-        Returns:
-            AgentResult with processed output
+        Execute refactoring tasks.
+        Input: { "action": "suggest", "code": "..." }
         """
-        # SKELETON FRAMEWORK - Actual AI logic in SYNTHESIS platform
-        #
-        # In the full platform, this agent would:
-        # - Execute specialized tasks
-        # - Process domain-specific logic
-        # - Generate optimized output
+        action = input_data.get("action")
+        
+        if action == "suggest":
+            advice = await self.execute_tool("suggest_refactor", code=input_data.get("code", ""))
+            return self.create_success_result(
+                data={"advice": advice},
+                message="Refactoring suggestions generated"
+            )
+        return self.create_error_result("Unknown action", f"Action {action} not supported")
 
-        return self.create_success_result(
-            data={
-                "agent_type": "refactor",
-                "capabilities": ['CODE_REFACTORING', 'CODE_REVIEW'],
-                "status": "skeleton_framework",
-                "message": "AI logic implemented in full SYNTHESIS platform"
-            },
-            message="RefactorAgent skeleton execution completed"
-        )
-
-
-# Example usage:
-# agent = RefactorAgent()
-# result = await agent.safe_execute({"task": "example"})
+    def suggest_refactor(self, code: str) -> list[str]:
+        """Suggest refactors"""
+        self.log_thought("Analyzing code structure...")
+        suggestions = ["Extract complex logic into functions"]
+        if "global" in code:
+            suggestions.append("Avoid global variables, use dependency injection")
+        return suggestions

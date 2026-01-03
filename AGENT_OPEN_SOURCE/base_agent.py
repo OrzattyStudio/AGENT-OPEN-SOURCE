@@ -1,17 +1,14 @@
-"""
-SYNTHESIS - Base Agent Framework (Open Source)
-Core architecture for autonomous AI agents
-
-This is the foundation that enables 49+ agents to work together autonomously.
-"""
 
 import asyncio
 import time
+import logging
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional, List
-from dataclasses import dataclass
+from typing import Dict, Any, Optional, List, Callable, Union
+from dataclasses import dataclass, field
 from enum import Enum
 
+# Configure basic logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 class AgentCapability(Enum):
     """Capabilities that agents can have"""
@@ -39,18 +36,15 @@ class AgentResult:
     data: Dict[str, Any]
     message: str
     error: Optional[str] = None
+    artifacts: List[str] = field(default_factory=list)
 
 
 class BaseAgent(ABC):
     """
-    Base class for all SYNTHESIS agents.
-
-    This framework enables:
-    - Autonomous execution
-    - Memory management
-    - Error handling
-    - Inter-agent communication
-    - Security validation
+    Base class for all SYNTHESIS agents (Open Source Version).
+    
+    This framework provides a structure for creating deterministic, rule-based agents
+    that can perform useful development tasks suitable for local execution.
     """
 
     def __init__(
@@ -62,56 +56,65 @@ class BaseAgent(ABC):
         self.name = name
         self.capabilities = capabilities
         self.max_memory_mb = max_memory_mb
-        self._memory_usage = 0.0
+        self.logger = logging.getLogger(self.name)
+        self.tools: Dict[str, Callable] = {}
+        
+        # Register default tools logic if any
+        self._register_default_tools()
+
+    def _register_default_tools(self):
+        """Register default tools available to all agents"""
+        pass
+
+    def register_tool(self, name: str, func: Callable, description: str):
+        """Register a new tool capability for this agent"""
+        self.tools[name] = func
+        self.logger.info(f"Tool registered: {name} - {description}")
+
+    def log_thought(self, thought: str):
+        """Simulate agent thinking/reasoning process"""
+        self.logger.info(f"THOUGHT: {thought}")
+        print(f"[{self.name}] Thinking: {thought}")
 
     @abstractmethod
     async def execute(self, input_data: Dict[str, Any]) -> AgentResult:
         """
         Execute the agent's main task.
-
-        Args:
-            input_data: Input data for the task
-
-        Returns:
-            AgentResult with success status and data
+        Must be implemented by specific agents.
         """
         pass
+
+    async def execute_tool(self, tool_name: str, **kwargs) -> Any:
+        """Execute a registered tool"""
+        if tool_name not in self.tools:
+            raise ValueError(f"Tool {tool_name} not found in {self.name}")
+        
+        self.log_thought(f"Executing tool: {tool_name} with params: {list(kwargs.keys())}")
+        try:
+            # If tool is async, await it
+            if asyncio.iscoroutinefunction(self.tools[tool_name]):
+                return await self.tools[tool_name](**kwargs)
+            return self.tools[tool_name](**kwargs)
+        except Exception as e:
+            self.logger.error(f"Tool execution failed: {e}")
+            raise e
 
     def has_capability(self, capability: AgentCapability) -> bool:
         """Check if agent has a specific capability"""
         return capability in self.capabilities
 
-    def sanitize_output(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Sanitize output for security"""
-        # Remove sensitive patterns
-        sensitive_patterns = [
-            r'password', r'secret', r'key', r'token', r'api_key', r'private'
-        ]
-
-        def sanitize_value(value):
-            if isinstance(value, str):
-                for pattern in sensitive_patterns:
-                    import re
-                    value = re.sub(rf'\b{pattern}\b.*', '[REDACTED]', value, flags=re.IGNORECASE)
-                return value
-            elif isinstance(value, dict):
-                return {k: sanitize_value(v) for k, v in value.items()}
-            elif isinstance(value, list):
-                return [sanitize_value(item) for item in value]
-            return value
-
-        return sanitize_value(data.copy())
-
-    def create_success_result(self, data: Dict[str, Any], message: str) -> AgentResult:
+    def create_success_result(self, data: Dict[str, Any], message: str, artifacts: List[str] = None) -> AgentResult:
         """Create a successful result"""
         return AgentResult(
             success=True,
-            data=self.sanitize_output(data),
-            message=message
+            data=data,
+            message=message,
+            artifacts=artifacts or []
         )
 
     def create_error_result(self, message: str, error: str) -> AgentResult:
         """Create an error result"""
+        self.logger.error(f"Error: {message} - {error}")
         return AgentResult(
             success=False,
             data={},
@@ -120,42 +123,14 @@ class BaseAgent(ABC):
         )
 
     async def safe_execute(self, input_data: Dict[str, Any]) -> AgentResult:
-        """Execute with error handling and memory management"""
+        """Execute with error handling"""
         try:
-            # Check memory limits
-            if not self.check_memory_limits():
-                return self.create_error_result(
-                    "Memory limit exceeded",
-                    "Agent memory usage too high"
-                )
-
+            self.log_thought(f"Starting execution with input keys: {list(input_data.keys())}")
             result = await self.execute(input_data)
-
-            # Cleanup memory
-            self.cleanup_memory()
-
+            self.log_thought("Execution completed successfully")
             return result
-
         except Exception as e:
             return self.create_error_result(
                 f"{self.name} execution failed",
                 str(e)
             )
-
-    def check_memory_limits(self) -> bool:
-        """Check if within memory limits"""
-        try:
-            import psutil
-            import os
-            process = psutil.Process(os.getpid())
-            memory_mb = process.memory_info().rss / 1024 / 1024
-            self._memory_usage = memory_mb
-            return memory_mb < self.max_memory_mb
-        except ImportError:
-            return True  # Skip check if psutil not available
-
-    def cleanup_memory(self) -> None:
-        """Clean up memory usage"""
-        import gc
-        gc.collect()
-        self._memory_usage = 0.0

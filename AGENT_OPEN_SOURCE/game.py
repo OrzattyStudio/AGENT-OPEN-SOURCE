@@ -1,60 +1,56 @@
 """
-SYNTHESIS - GameAgent (Open Source Skeleton)
-Game development and interactive media specialist
-
-This agent specializes in game development and interactive media specialist.
-Framework skeleton - AI intelligence in full SYNTHESIS platform.
+SYNTHESIS - GameAgent (Open Source Version)
+Game development and logic specialist
 """
 
 from typing import Dict, Any
 from .base_agent import BaseAgent, AgentCapability, AgentResult
 
-
 class GameAgent(BaseAgent):
     """
-    GameAgent - Game development and interactive media specialist
-
-    Capabilities:
-    - code generation
-    - frontend development
+    GameAgent - Generates game logic scripts (Unity/C# or Godot/GDScript).
     """
 
     def __init__(self):
         super().__init__(
             name="GameAgent",
             capabilities=[
-                AgentCapability.CODE_GENERATION, AgentCapability.FRONTEND_DEVELOPMENT
+                AgentCapability.CODE_GENERATION, AgentCapability.LOGIC
             ]
         )
+        self.register_tool("generate_script", self.generate_script, "Generates basic game scripts")
 
     async def execute(self, input_data: Dict[str, Any]) -> AgentResult:
         """
-        Execute game development and interactive media specialist task.
-
-        Args:
-            input_data: Task-specific input data
-
-        Returns:
-            AgentResult with processed output
+        Execute game tasks.
+        Input: { "action": "script", "engine": "unity", "type": "movement" }
         """
-        # SKELETON FRAMEWORK - Actual AI logic in SYNTHESIS platform
-        #
-        # In the full platform, this agent would:
-        # - Execute specialized tasks
-        # - Process domain-specific logic
-        # - Generate optimized output
+        action = input_data.get("action")
+        
+        if action == "script":
+            engine = input_data.get("engine", "unity")
+            script_type = input_data.get("type", "movement")
+            code = await self.execute_tool("generate_script", engine=engine, script_type=script_type)
+            return self.create_success_result(
+                data={"code": code},
+                message=f"Generated {script_type} script for {engine}"
+            )
+        return self.create_error_result("Unknown action", f"Action {action} not supported")
 
-        return self.create_success_result(
-            data={
-                "agent_type": "game",
-                "capabilities": ['CODE_GENERATION', 'FRONTEND_DEVELOPMENT'],
-                "status": "skeleton_framework",
-                "message": "AI logic implemented in full SYNTHESIS platform"
-            },
-            message="GameAgent skeleton execution completed"
-        )
+    def generate_script(self, engine: str, script_type: str) -> str:
+        """Generate Game Script"""
+        self.log_thought(f"Generating {script_type} script for {engine}")
+        
+        if engine == "unity" and script_type == "movement":
+            return """using UnityEngine;
 
+public class PlayerMovement : MonoBehaviour {
+    public float speed = 5f;
 
-# Example usage:
-# agent = GameAgent()
-# result = await agent.safe_execute({"task": "example"})
+    void Update() {
+        float h = Input.GetAxis("Horizontal");
+        float v = Input.GetAxis("Vertical");
+        transform.Translate(new Vector3(h, 0, v) * speed * Time.deltaTime);
+    }
+}"""
+        return "// Script not available"

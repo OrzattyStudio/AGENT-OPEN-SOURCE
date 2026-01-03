@@ -1,60 +1,54 @@
 """
-SYNTHESIS - EmbeddedAgent (Open Source Skeleton)
-Embedded systems and IoT development specialist
-
-This agent specializes in embedded systems and iot development specialist.
-Framework skeleton - AI intelligence in full SYNTHESIS platform.
+SYNTHESIS - EmbeddedAgent (Open Source Version)
+Embedded systems and IoT development
 """
 
 from typing import Dict, Any
 from .base_agent import BaseAgent, AgentCapability, AgentResult
 
-
 class EmbeddedAgent(BaseAgent):
     """
-    EmbeddedAgent - Embedded systems and IoT development specialist
-
-    Capabilities:
-    - code generation
-    - architecture
+    EmbeddedAgent - Generates Arduino/C++ sketches for IoT.
     """
 
     def __init__(self):
         super().__init__(
             name="EmbeddedAgent",
             capabilities=[
-                AgentCapability.CODE_GENERATION, AgentCapability.ARCHITECTURE
+                AgentCapability.CODE_GENERATION, AgentCapability.HARDWARE_INTERFACE
             ]
         )
+        self.register_tool("generate_sketch", self.generate_sketch, "Generates Arduino sketches")
 
     async def execute(self, input_data: Dict[str, Any]) -> AgentResult:
         """
-        Execute embedded systems and iot development specialist task.
-
-        Args:
-            input_data: Task-specific input data
-
-        Returns:
-            AgentResult with processed output
+        Execute embedded tasks.
+        Input: { "action": "sketch", "module": "led_blink" }
         """
-        # SKELETON FRAMEWORK - Actual AI logic in SYNTHESIS platform
-        #
-        # In the full platform, this agent would:
-        # - Execute specialized tasks
-        # - Process domain-specific logic
-        # - Generate optimized output
+        action = input_data.get("action")
+        
+        if action == "sketch":
+            module = input_data.get("module", "led_blink")
+            code = await self.execute_tool("generate_sketch", module=module)
+            return self.create_success_result(
+                data={"code": code},
+                message=f"Generated sketch for {module}"
+            )
+        return self.create_error_result("Unknown action", f"Action {action} not supported")
 
-        return self.create_success_result(
-            data={
-                "agent_type": "embedded",
-                "capabilities": ['CODE_GENERATION', 'ARCHITECTURE'],
-                "status": "skeleton_framework",
-                "message": "AI logic implemented in full SYNTHESIS platform"
-            },
-            message="EmbeddedAgent skeleton execution completed"
-        )
+    def generate_sketch(self, module: str) -> str:
+        """Generate Arduino code"""
+        self.log_thought(f"Generating Arduino sketch for {module}")
+        
+        if module == "led_blink":
+            return """void setup() {
+  pinMode(LED_BUILTIN, OUTPUT);
+}
 
-
-# Example usage:
-# agent = EmbeddedAgent()
-# result = await agent.safe_execute({"task": "example"})
+void loop() {
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(1000);
+  digitalWrite(LED_BUILTIN, LOW);
+  delay(1000);
+}"""
+        return "// Module not supported"

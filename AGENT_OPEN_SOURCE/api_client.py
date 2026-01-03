@@ -1,60 +1,50 @@
 """
-SYNTHESIS - APIClientAgent (Open Source Skeleton)
-API client generation and SDK development specialist
-
-This agent specializes in api client generation and sdk development specialist.
-Framework skeleton - AI intelligence in full SYNTHESIS platform.
+SYNTHESIS - APIClientAgent (Open Source Version)
+External API integration
 """
 
 from typing import Dict, Any
 from .base_agent import BaseAgent, AgentCapability, AgentResult
 
-
 class APIClientAgent(BaseAgent):
     """
-    APIClientAgent - API client generation and SDK development specialist
-
-    Capabilities:
-    - api design
-    - code generation
+    APIClientAgent - Generates API client code.
     """
 
     def __init__(self):
         super().__init__(
             name="APIClientAgent",
             capabilities=[
-                AgentCapability.API_DESIGN, AgentCapability.CODE_GENERATION
+                AgentCapability.CODE_GENERATION, AgentCapability.BACKEND_DEVELOPMENT
             ]
         )
+        self.register_tool("generate_client", self.generate_client, "Generates Requests client")
 
     async def execute(self, input_data: Dict[str, Any]) -> AgentResult:
         """
-        Execute api client generation and sdk development specialist task.
-
-        Args:
-            input_data: Task-specific input data
-
-        Returns:
-            AgentResult with processed output
+        Execute API client tasks.
+        Input: { "action": "client", "base_url": "..." }
         """
-        # SKELETON FRAMEWORK - Actual AI logic in SYNTHESIS platform
-        #
-        # In the full platform, this agent would:
-        # - Execute specialized tasks
-        # - Process domain-specific logic
-        # - Generate optimized output
+        action = input_data.get("action")
+        
+        if action == "client":
+            url = input_data.get("base_url", "http://api.com")
+            code = await self.execute_tool("generate_client", url=url)
+            return self.create_success_result(
+                data={"code": code},
+                message=f"Generated client for {url}"
+            )
+        return self.create_error_result("Unknown action", f"Action {action} not supported")
 
-        return self.create_success_result(
-            data={
-                "agent_type": "api_client",
-                "capabilities": ['API_DESIGN', 'CODE_GENERATION'],
-                "status": "skeleton_framework",
-                "message": "AI logic implemented in full SYNTHESIS platform"
-            },
-            message="APIClientAgent skeleton execution completed"
-        )
+    def generate_client(self, url: str) -> str:
+        """Generate API Client"""
+        self.log_thought(f"Generating client for {url}")
+        return f"""import requests
 
+class Client:
+    def __init__(self):
+        self.base_url = "{url}"
 
-# Example usage:
-# agent = APIClientAgent()
-# result = await agent.safe_execute({"task": "example"})
+    def get_data(self):
+        return requests.get(f"{{self.base_url}}/data").json()
+"""

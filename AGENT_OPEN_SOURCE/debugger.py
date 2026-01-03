@@ -1,60 +1,46 @@
 """
-SYNTHESIS - DebuggerAgent (Open Source Skeleton)
-Debugging and error resolution specialist
-
-This agent specializes in debugging and error resolution specialist.
-Framework skeleton - AI intelligence in full SYNTHESIS platform.
+SYNTHESIS - DebuggerAgent (Open Source Version)
+Code debugging and error resolution
 """
 
 from typing import Dict, Any
 from .base_agent import BaseAgent, AgentCapability, AgentResult
 
-
 class DebuggerAgent(BaseAgent):
     """
-    DebuggerAgent - Debugging and error resolution specialist
-
-    Capabilities:
-    - debugging
-    - code review
+    DebuggerAgent - Analyzes error logs (simulated).
     """
 
     def __init__(self):
         super().__init__(
             name="DebuggerAgent",
             capabilities=[
-                AgentCapability.DEBUGGING, AgentCapability.CODE_REVIEW
+                AgentCapability.DEBUGGING, AgentCapability.CODE_GENERATION
             ]
         )
+        self.register_tool("analyze_log", self.analyze_log, "Analyzes error logs for common patterns")
 
     async def execute(self, input_data: Dict[str, Any]) -> AgentResult:
         """
-        Execute debugging and error resolution specialist task.
-
-        Args:
-            input_data: Task-specific input data
-
-        Returns:
-            AgentResult with processed output
+        Execute debugging tasks.
+        Input: { "action": "analyze", "log": "Error..." }
         """
-        # SKELETON FRAMEWORK - Actual AI logic in SYNTHESIS platform
-        #
-        # In the full platform, this agent would:
-        # - Execute specialized tasks
-        # - Process domain-specific logic
-        # - Generate optimized output
+        action = input_data.get("action")
+        
+        if action == "analyze":
+            log = input_data.get("log", "")
+            hints = await self.execute_tool("analyze_log", log=log)
+            return self.create_success_result(
+                data={"hints": hints},
+                message="Log analysis complete"
+            )
+        return self.create_error_result("Unknown action", f"Action {action} not supported")
 
-        return self.create_success_result(
-            data={
-                "agent_type": "debugger",
-                "capabilities": ['DEBUGGING', 'CODE_REVIEW'],
-                "status": "skeleton_framework",
-                "message": "AI logic implemented in full SYNTHESIS platform"
-            },
-            message="DebuggerAgent skeleton execution completed"
-        )
-
-
-# Example usage:
-# agent = DebuggerAgent()
-# result = await agent.safe_execute({"task": "example"})
+    def analyze_log(self, log: str) -> str:
+        """Analyze log content"""
+        self.log_thought("Analyzing error log...")
+        if "NullPointerException" in log or "NoneType" in log:
+            return "Potential null reference. Check if object is initialized."
+        if "Timeout" in log:
+            return "Operation timed out. Check network or performance."
+        return "Unknown error pattern. Recommend manual review."

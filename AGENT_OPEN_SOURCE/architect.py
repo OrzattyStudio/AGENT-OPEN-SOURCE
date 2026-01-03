@@ -1,79 +1,45 @@
 """
-SYNTHESIS - Architect Agent (Open Source Skeleton)
-System architecture and design planning agent
-
-This agent designs the overall system architecture, creates technical specifications,
-and plans the development approach for complex software projects.
+SYNTHESIS - ArchitectAgent (Open Source Version)
+System architecture and high-level design
 """
 
 from typing import Dict, Any
 from .base_agent import BaseAgent, AgentCapability, AgentResult
 
-
 class ArchitectAgent(BaseAgent):
     """
-    Architect Agent - System Design Specialist
-
-    Capabilities:
-    - System architecture design
-    - Technical specification creation
-    - Technology stack selection
-    - Component relationship mapping
-    - Scalability planning
-    - Security architecture design
+    ArchitectAgent - Generates high-level system diagrams (Mermaid).
     """
 
     def __init__(self):
         super().__init__(
             name="ArchitectAgent",
             capabilities=[
-                AgentCapability.ARCHITECTURE,
-                AgentCapability.PLANNING,
-                AgentCapability.REASONING
+                AgentCapability.ARCHITECTURE, AgentCapability.PLANNING
             ]
         )
+        self.register_tool("generate_diagram", self.generate_diagram, "Generates Mermaid.js architecture diagram")
 
     async def execute(self, input_data: Dict[str, Any]) -> AgentResult:
         """
-        Design system architecture based on requirements.
-
-        Args:
-            input_data: Dictionary containing:
-                - requirements: List of functional requirements
-                - constraints: Technical and business constraints
-                - scale: Expected user load and data volume
-                - technologies: Preferred technology stack (optional)
-
-        Returns:
-            AgentResult with architecture design and specifications
+        Execute architecture tasks.
+        Input: { "action": "diagram", "type": "flowchart" }
         """
-        # This is a skeleton - the actual AI logic is proprietary
-        # In the full SYNTHESIS platform, this would:
-        # 1. Analyze requirements for completeness
-        # 2. Design multi-tier architecture
-        # 3. Select optimal technology stack
-        # 4. Create detailed component specifications
-        # 5. Plan scalability and security measures
-        # 6. Generate deployment architecture
+        action = input_data.get("action")
+        
+        if action == "diagram":
+            dtype = input_data.get("type", "flowchart")
+            diagram = await self.execute_tool("generate_diagram", dtype=dtype)
+            return self.create_success_result(
+                data={"mermaid": diagram},
+                message=f"Generated {dtype} diagram"
+            )
+        return self.create_error_result("Unknown action", f"Action {action} not supported")
 
-        return self.create_success_result(
-            data={
-                "architecture": {
-                    "type": "web_application",
-                    "components": ["frontend", "backend", "database"],
-                    "patterns": ["microservices", "api_gateway"]
-                },
-                "specifications": {
-                    "scalability": "horizontal_scaling",
-                    "security": "defense_in_depth",
-                    "performance": "optimized_caching"
-                },
-                "technologies": {
-                    "frontend": ["React", "TypeScript"],
-                    "backend": ["FastAPI", "Python"],
-                    "database": ["PostgreSQL"],
-                    "deployment": ["Docker", "Kubernetes"]
-                }
-            },
-            message="Architecture design skeleton - AI logic in full platform"
-        )
+    def generate_diagram(self, dtype: str) -> str:
+        """Generate Mermaid Diagram"""
+        self.log_thought(f"Designing {dtype} architecture...")
+        return """graph TD
+    Client --> API
+    API --> Database
+    API --> Cache"""

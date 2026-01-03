@@ -1,22 +1,14 @@
 """
-SYNTHESIS - PackagerAgent (Open Source Skeleton)
-Package management and dependency resolution specialist
-
-This agent specializes in package management and dependency resolution specialist.
-Framework skeleton - AI intelligence in full SYNTHESIS platform.
+SYNTHESIS - PackagerAgent (Open Source Version)
+Package management and distribution
 """
 
 from typing import Dict, Any
 from .base_agent import BaseAgent, AgentCapability, AgentResult
 
-
 class PackagerAgent(BaseAgent):
     """
-    PackagerAgent - Package management and dependency resolution specialist
-
-    Capabilities:
-    - devops
-    - code generation
+    PackagerAgent - Generates setup.py / package.json.
     """
 
     def __init__(self):
@@ -26,35 +18,34 @@ class PackagerAgent(BaseAgent):
                 AgentCapability.DEVOPS, AgentCapability.CODE_GENERATION
             ]
         )
+        self.register_tool("generate_package_config", self.generate_package_config, "Generates setup.py or package.json")
 
     async def execute(self, input_data: Dict[str, Any]) -> AgentResult:
         """
-        Execute package management and dependency resolution specialist task.
-
-        Args:
-            input_data: Task-specific input data
-
-        Returns:
-            AgentResult with processed output
+        Execute packager tasks.
+        Input: { "action": "config", "type": "python", "name": "mypkg" }
         """
-        # SKELETON FRAMEWORK - Actual AI logic in SYNTHESIS platform
-        #
-        # In the full platform, this agent would:
-        # - Execute specialized tasks
-        # - Process domain-specific logic
-        # - Generate optimized output
+        action = input_data.get("action")
+        
+        if action == "config":
+            ptype = input_data.get("type", "python")
+            name = input_data.get("name", "pkg")
+            code = await self.execute_tool("generate_package_config", ptype=ptype, name=name)
+            return self.create_success_result(
+                data={"code": code},
+                message=f"Generated package config for {name}"
+            )
+        return self.create_error_result("Unknown action", f"Action {action} not supported")
 
-        return self.create_success_result(
-            data={
-                "agent_type": "packager",
-                "capabilities": ['DEVOPS', 'CODE_GENERATION'],
-                "status": "skeleton_framework",
-                "message": "AI logic implemented in full SYNTHESIS platform"
-            },
-            message="PackagerAgent skeleton execution completed"
-        )
+    def generate_package_config(self, ptype: str, name: str) -> str:
+        """Generate package config"""
+        self.log_thought(f"Packaging {name} for {ptype}")
+        if ptype == "python":
+            return f"""from setuptools import setup, find_packages
 
-
-# Example usage:
-# agent = PackagerAgent()
-# result = await agent.safe_execute({"task": "example"})
+setup(
+    name="{name}",
+    version="0.1.0",
+    packages=find_packages(),
+)"""
+        return "{}"

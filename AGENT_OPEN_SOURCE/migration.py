@@ -1,60 +1,50 @@
 """
-SYNTHESIS - MigrationAgent (Open Source Skeleton)
-Database migration and schema evolution specialist
-
-This agent specializes in database migration and schema evolution specialist.
-Framework skeleton - AI intelligence in full SYNTHESIS platform.
+SYNTHESIS - MigrationAgent (Open Source Version)
+Data migration and system upgrades
 """
 
 from typing import Dict, Any
 from .base_agent import BaseAgent, AgentCapability, AgentResult
 
-
 class MigrationAgent(BaseAgent):
     """
-    MigrationAgent - Database migration and schema evolution specialist
-
-    Capabilities:
-    - database design
-    - backend development
+    MigrationAgent - Generates Alembic revision stubs.
     """
 
     def __init__(self):
         super().__init__(
             name="MigrationAgent",
             capabilities=[
-                AgentCapability.DATABASE_DESIGN, AgentCapability.BACKEND_DEVELOPMENT
+                AgentCapability.DATABASE_DESIGN, AgentCapability.DEVOPS
             ]
         )
+        self.register_tool("generate_revision", self.generate_revision, "Generates database migration script stub")
 
     async def execute(self, input_data: Dict[str, Any]) -> AgentResult:
         """
-        Execute database migration and schema evolution specialist task.
-
-        Args:
-            input_data: Task-specific input data
-
-        Returns:
-            AgentResult with processed output
+        Execute migration tasks.
+        Input: { "action": "revision", "message": "add users" }
         """
-        # SKELETON FRAMEWORK - Actual AI logic in SYNTHESIS platform
-        #
-        # In the full platform, this agent would:
-        # - Execute specialized tasks
-        # - Process domain-specific logic
-        # - Generate optimized output
+        action = input_data.get("action")
+        
+        if action == "revision":
+            msg = input_data.get("message", "migration")
+            code = await self.execute_tool("generate_revision", msg=msg)
+            return self.create_success_result(
+                data={"code": code},
+                message=f"Generated migration: {msg}"
+            )
+        return self.create_error_result("Unknown action", f"Action {action} not supported")
 
-        return self.create_success_result(
-            data={
-                "agent_type": "migration",
-                "capabilities": ['DATABASE_DESIGN', 'BACKEND_DEVELOPMENT'],
-                "status": "skeleton_framework",
-                "message": "AI logic implemented in full SYNTHESIS platform"
-            },
-            message="MigrationAgent skeleton execution completed"
-        )
+    def generate_revision(self, msg: str) -> str:
+        """Generate migration stub"""
+        self.log_thought(f"Creating migration revision: {msg}")
+        return f"""# Revision for: {msg}
+def upgrade():
+    # op.create_table(...)
+    pass
 
-
-# Example usage:
-# agent = MigrationAgent()
-# result = await agent.safe_execute({"task": "example"})
+def downgrade():
+    # op.drop_table(...)
+    pass
+"""

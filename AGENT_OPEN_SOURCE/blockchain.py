@@ -1,60 +1,57 @@
 """
-SYNTHESIS - BlockchainAgent (Open Source Skeleton)
-Blockchain development and smart contract specialist
-
-This agent specializes in blockchain development and smart contract specialist.
-Framework skeleton - AI intelligence in full SYNTHESIS platform.
+SYNTHESIS - BlockchainAgent (Open Source Version)
+Smart contract and DApp development
 """
 
 from typing import Dict, Any
 from .base_agent import BaseAgent, AgentCapability, AgentResult
 
-
 class BlockchainAgent(BaseAgent):
     """
-    BlockchainAgent - Blockchain development and smart contract specialist
-
-    Capabilities:
-    - backend development
-    - architecture
+    BlockchainAgent - Generates Solidity Smart Contracts.
     """
 
     def __init__(self):
         super().__init__(
             name="BlockchainAgent",
             capabilities=[
-                AgentCapability.BACKEND_DEVELOPMENT, AgentCapability.ARCHITECTURE
+                AgentCapability.CODE_GENERATION, AgentCapability.SECURITY_ANALYSIS
             ]
         )
+        self.register_tool("generate_contract", self.generate_contract, "Generates ERC-20/721 Token Contracts")
 
     async def execute(self, input_data: Dict[str, Any]) -> AgentResult:
         """
-        Execute blockchain development and smart contract specialist task.
-
-        Args:
-            input_data: Task-specific input data
-
-        Returns:
-            AgentResult with processed output
+        Execute blockchain tasks.
+        Input: { "action": "generate", "standard": "erc20", "name": "MyToken", "symbol": "MTK" }
         """
-        # SKELETON FRAMEWORK - Actual AI logic in SYNTHESIS platform
-        #
-        # In the full platform, this agent would:
-        # - Execute specialized tasks
-        # - Process domain-specific logic
-        # - Generate optimized output
+        action = input_data.get("action")
+        
+        if action == "generate":
+            standard = input_data.get("standard", "erc20")
+            name = input_data.get("name", "Token")
+            symbol = input_data.get("symbol", "TKN")
+            code = await self.execute_tool("generate_contract", standard=standard, name=name, symbol=symbol)
+            return self.create_success_result(
+                data={"code": code},
+                message=f"Generated {standard} contract"
+            )
+        return self.create_error_result("Unknown action", f"Action {action} not supported")
 
-        return self.create_success_result(
-            data={
-                "agent_type": "blockchain",
-                "capabilities": ['BACKEND_DEVELOPMENT', 'ARCHITECTURE'],
-                "status": "skeleton_framework",
-                "message": "AI logic implemented in full SYNTHESIS platform"
-            },
-            message="BlockchainAgent skeleton execution completed"
-        )
+    def generate_contract(self, standard: str, name: str, symbol: str) -> str:
+        """Generate Solidity code"""
+        self.log_thought(f"Writing {standard} smart contract for {name}")
+        
+        if standard == "erc20":
+            return f"""// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-# Example usage:
-# agent = BlockchainAgent()
-# result = await agent.safe_execute({"task": "example"})
+contract {name} is ERC20 {{
+    constructor() ERC20("{name}", "{symbol}") {{
+        _mint(msg.sender, 1000000 * 10 ** decimals());
+    }}
+}}
+"""
+        return "// Standard not supported"

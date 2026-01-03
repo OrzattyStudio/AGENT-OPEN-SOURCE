@@ -1,22 +1,14 @@
 """
-SYNTHESIS - PerformanceAgent (Open Source Skeleton)
-Performance optimization and monitoring specialist
-
-This agent specializes in performance optimization and monitoring specialist.
-Framework skeleton - AI intelligence in full SYNTHESIS platform.
+SYNTHESIS - PerformanceAgent (Open Source Version)
+Performance optimization and analysis
 """
 
 from typing import Dict, Any
 from .base_agent import BaseAgent, AgentCapability, AgentResult
 
-
 class PerformanceAgent(BaseAgent):
     """
-    PerformanceAgent - Performance optimization and monitoring specialist
-
-    Capabilities:
-    - performance optimization
-    - code review
+    PerformanceAgent - Suggests optimizations.
     """
 
     def __init__(self):
@@ -26,35 +18,29 @@ class PerformanceAgent(BaseAgent):
                 AgentCapability.PERFORMANCE_OPTIMIZATION, AgentCapability.CODE_REVIEW
             ]
         )
+        self.register_tool("suggest_optimizations", self.suggest_optimizations, "Suggests code optimizations")
 
     async def execute(self, input_data: Dict[str, Any]) -> AgentResult:
         """
-        Execute performance optimization and monitoring specialist task.
-
-        Args:
-            input_data: Task-specific input data
-
-        Returns:
-            AgentResult with processed output
+        Execute performance tasks.
+        Input: { "action": "optimize", "language": "python" }
         """
-        # SKELETON FRAMEWORK - Actual AI logic in SYNTHESIS platform
-        #
-        # In the full platform, this agent would:
-        # - Execute specialized tasks
-        # - Process domain-specific logic
-        # - Generate optimized output
+        action = input_data.get("action")
+        
+        if action == "optimize":
+            lang = input_data.get("language", "python")
+            tips = await self.execute_tool("suggest_optimizations", language=lang)
+            return self.create_success_result(
+                data={"tips": tips},
+                message=f"Performance tips for {lang}"
+            )
+        return self.create_error_result("Unknown action", f"Action {action} not supported")
 
-        return self.create_success_result(
-            data={
-                "agent_type": "performance",
-                "capabilities": ['PERFORMANCE_OPTIMIZATION', 'CODE_REVIEW'],
-                "status": "skeleton_framework",
-                "message": "AI logic implemented in full SYNTHESIS platform"
-            },
-            message="PerformanceAgent skeleton execution completed"
-        )
-
-
-# Example usage:
-# agent = PerformanceAgent()
-# result = await agent.safe_execute({"task": "example"})
+    def suggest_optimizations(self, language: str) -> list[str]:
+        """Provide performance tips"""
+        self.log_thought(f"Retrieving optimization tips for {language}")
+        if language == "python":
+            return ["Use generators for large datasets", "Use built-in functions (map, filter)", "Profile with cProfile"]
+        if language == "javascript":
+            return ["Minimize DOM access", "Use debounce/throttle", "Virtualize long lists"]
+        return ["Cache results where possible"]

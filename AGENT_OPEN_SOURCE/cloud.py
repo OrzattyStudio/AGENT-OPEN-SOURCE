@@ -1,22 +1,14 @@
 """
-SYNTHESIS - CloudAgent (Open Source Skeleton)
-Cloud architecture and deployment specialist
-
-This agent specializes in cloud architecture and deployment specialist.
-Framework skeleton - AI intelligence in full SYNTHESIS platform.
+SYNTHESIS - CloudAgent (Open Source Version)
+Cloud infrastructure and deployment specialist
 """
 
 from typing import Dict, Any
 from .base_agent import BaseAgent, AgentCapability, AgentResult
 
-
 class CloudAgent(BaseAgent):
     """
-    CloudAgent - Cloud architecture and deployment specialist
-
-    Capabilities:
-    - devops
-    - architecture
+    CloudAgent - Generates Infrastructure as Code (Terraform/CloudFormation).
     """
 
     def __init__(self):
@@ -26,35 +18,46 @@ class CloudAgent(BaseAgent):
                 AgentCapability.DEVOPS, AgentCapability.ARCHITECTURE
             ]
         )
+        self.register_tool("generate_terraform", self.generate_terraform, "Generates Terraform resources")
 
     async def execute(self, input_data: Dict[str, Any]) -> AgentResult:
         """
-        Execute cloud architecture and deployment specialist task.
-
-        Args:
-            input_data: Task-specific input data
-
-        Returns:
-            AgentResult with processed output
+        Execute cloud tasks.
+        Input: { "action": "generate_iac", "provider": "aws", "resource": "s3" }
         """
-        # SKELETON FRAMEWORK - Actual AI logic in SYNTHESIS platform
-        #
-        # In the full platform, this agent would:
-        # - Execute specialized tasks
-        # - Process domain-specific logic
-        # - Generate optimized output
+        action = input_data.get("action")
+        
+        if action == "generate_iac":
+            provider = input_data.get("provider", "aws")
+            resource = input_data.get("resource", "s3")
+            code = await self.execute_tool("generate_terraform", provider=provider, resource=resource)
+            return self.create_success_result(
+                data={"code": code, "type": "terraform"},
+                message=f"Generated Terraform for {provider} {resource}"
+            )
+        return self.create_error_result("Unknown action", f"Action {action} not supported")
 
-        return self.create_success_result(
-            data={
-                "agent_type": "cloud",
-                "capabilities": ['DEVOPS', 'ARCHITECTURE'],
-                "status": "skeleton_framework",
-                "message": "AI logic implemented in full SYNTHESIS platform"
-            },
-            message="CloudAgent skeleton execution completed"
-        )
+    def generate_terraform(self, provider: str, resource: str) -> str:
+        """Generate Terraform snippets"""
+        self.log_thought(f"Generating Terraform for {provider} {resource}")
+        
+        if provider == "aws" and resource == "s3":
+            return """resource "aws_s3_bucket" "b" {
+  bucket = "my-tf-test-bucket"
+  acl    = "private"
 
+  tags = {
+    Name        = "My bucket"
+    Environment = "Dev"
+  }
+}"""
+        elif provider == "aws" and resource == "ec2":
+            return """resource "aws_instance" "web" {
+  ami           = "ami-0c55b159cbfafe1f0"
+  instance_type = "t2.micro"
 
-# Example usage:
-# agent = CloudAgent()
-# result = await agent.safe_execute({"task": "example"})
+  tags = {
+    Name = "HelloWorld"
+  }
+}"""
+        return "# Resource not available in basic CloudAgent"

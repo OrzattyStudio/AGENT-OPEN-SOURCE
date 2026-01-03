@@ -1,60 +1,50 @@
 """
-SYNTHESIS - AnalyticsAgent (Open Source Skeleton)
-Analytics implementation and tracking specialist
-
-This agent specializes in analytics implementation and tracking specialist.
-Framework skeleton - AI intelligence in full SYNTHESIS platform.
+SYNTHESIS - AnalyticsAgent (Open Source Version)
+Data analytics and visualization
 """
 
 from typing import Dict, Any
 from .base_agent import BaseAgent, AgentCapability, AgentResult
 
-
 class AnalyticsAgent(BaseAgent):
     """
-    AnalyticsAgent - Analytics implementation and tracking specialist
-
-    Capabilities:
-    - backend development
-    - planning
+    AnalyticsAgent - Generates plotting code.
     """
 
     def __init__(self):
         super().__init__(
             name="AnalyticsAgent",
             capabilities=[
-                AgentCapability.BACKEND_DEVELOPMENT, AgentCapability.PLANNING
+                AgentCapability.DATA_ANALYSIS, AgentCapability.CODE_GENERATION
             ]
         )
+        self.register_tool("generate_plot", self.generate_plot, "Generates Matplotlib code")
 
     async def execute(self, input_data: Dict[str, Any]) -> AgentResult:
         """
-        Execute analytics implementation and tracking specialist task.
-
-        Args:
-            input_data: Task-specific input data
-
-        Returns:
-            AgentResult with processed output
+        Execute analytics tasks.
+        Input: { "action": "plot", "type": "bar" }
         """
-        # SKELETON FRAMEWORK - Actual AI logic in SYNTHESIS platform
-        #
-        # In the full platform, this agent would:
-        # - Execute specialized tasks
-        # - Process domain-specific logic
-        # - Generate optimized output
+        action = input_data.get("action")
+        
+        if action == "plot":
+            plot_type = input_data.get("type", "bar")
+            code = await self.execute_tool("generate_plot", type=plot_type)
+            return self.create_success_result(
+                data={"code": code},
+                message=f"Generated {plot_type} plot code"
+            )
+        return self.create_error_result("Unknown action", f"Action {action} not supported")
 
-        return self.create_success_result(
-            data={
-                "agent_type": "analytics",
-                "capabilities": ['BACKEND_DEVELOPMENT', 'PLANNING'],
-                "status": "skeleton_framework",
-                "message": "AI logic implemented in full SYNTHESIS platform"
-            },
-            message="AnalyticsAgent skeleton execution completed"
-        )
+    def generate_plot(self, type: str) -> str:
+        """Generate plotting code"""
+        self.log_thought(f"Generating code for {type} chart")
+        return f"""import matplotlib.pyplot as plt
 
+data = [10, 20, 15, 25]
+labels = ['A', 'B', 'C', 'D']
 
-# Example usage:
-# agent = AnalyticsAgent()
-# result = await agent.safe_execute({"task": "example"})
+plt.{type}(labels, data)
+plt.title('Generated Chart')
+plt.show()
+"""

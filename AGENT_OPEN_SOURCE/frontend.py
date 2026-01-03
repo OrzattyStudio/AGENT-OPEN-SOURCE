@@ -1,22 +1,14 @@
 """
-SYNTHESIS - FrontendAgent (Open Source Skeleton)
+SYNTHESIS - FrontendAgent (Open Source Version)
 Frontend development and UI implementation specialist
-
-This agent specializes in frontend development and ui implementation specialist.
-Framework skeleton - AI intelligence in full SYNTHESIS platform.
 """
 
-from typing import Dict, Any
+from typing import Dict, Any, List
 from .base_agent import BaseAgent, AgentCapability, AgentResult
-
 
 class FrontendAgent(BaseAgent):
     """
-    FrontendAgent - Frontend development and UI implementation specialist
-
-    Capabilities:
-    - frontend development
-    - code generation
+    FrontendAgent - Generates frontend components and standardized HTML structure.
     """
 
     def __init__(self):
@@ -26,37 +18,98 @@ class FrontendAgent(BaseAgent):
                 AgentCapability.FRONTEND_DEVELOPMENT, AgentCapability.CODE_GENERATION
             ]
         )
+        self.register_tool("scaffold_component", self.scaffold_component, "Generates React/Vue/Vanilla JS component structure")
+        self.register_tool("generate_html", self.generate_html, "Generates HTML5 boilerplate")
 
     async def execute(self, input_data: Dict[str, Any]) -> AgentResult:
         """
-        Execute frontend development and ui implementation specialist task.
-
-        Args:
-            input_data: Task-specific input data
-
-        Returns:
-            AgentResult with processed output
+        Execute frontend tasks.
+        Input format:
+        {
+            "action": "scaffold_component" | "generate_html",
+            "name": "ComponentName",
+            "framework": "react" | "vue" | "vanilla"
+        }
         """
-        # SKELETON FRAMEWORK - Actual AI logic in SYNTHESIS platform
-        #
-        # In the full platform, this agent would:
-        # - Generate React components
-        # - Implement responsive UI
-        # - Add interactive features
-        # - Optimize for performance
-        # - Ensure cross-browser compatibility
+        action = input_data.get("action")
+        
+        if action == "scaffold_component":
+            name = input_data.get("name", "NewComponent")
+            style = input_data.get("style", "css")
+            framework = input_data.get("framework", "react")
+            code = await self.execute_tool("scaffold_component", name=name, framework=framework, style=style)
+            return self.create_success_result(
+                data={"code": code, "type": "component"},
+                message=f"Created {framework} component: {name}"
+            )
+            
+        elif action == "generate_html":
+            title = input_data.get("title", "App")
+            code = await self.execute_tool("generate_html", title=title)
+            return self.create_success_result(
+                data={"code": code, "type": "html"},
+                message=f"Generated HTML5 boilerplate for {title}"
+            )
+            
+        else:
+            return self.create_error_result("Unknown action", f"Action '{action}' is not supported")
 
-        return self.create_success_result(
-            data={
-                "agent_type": "frontend",
-                "capabilities": ['FRONTEND_DEVELOPMENT', 'CODE_GENERATION'],
-                "status": "skeleton_framework",
-                "message": "AI logic implemented in full SYNTHESIS platform"
-            },
-            message="FrontendAgent skeleton execution completed"
-        )
+    def scaffold_component(self, name: str, framework: str, style: str) -> Dict[str, str]:
+        """Generate component files"""
+        self.log_thought(f"Scaffolding {framework} component: {name}")
+        
+        files = {}
+        if framework == "react":
+            files[f"{name}.jsx"] = f"""import React from 'react';
+import './{name}.{style}';
 
+export const {name} = (props) => {{
+  return (
+    <div className="{name.lower()}-container">
+      <h1>{name} Component</h1>
+      {{props.children}}
+    </div>
+  );
+}};
+"""
+            files[f"{name}.{style}"] = f".{name.lower()}-container {{ padding: 20px; border: 1px solid #ccc; }}"
+            
+        elif framework == "vue":
+             files[f"{name}.vue"] = f"""<template>
+  <div class="{name.lower()}">
+    <h1>{name} Component</h1>
+  </div>
+</template>
 
-# Example usage:
-# agent = FrontendAgent()
-# result = await agent.safe_execute({"task": "example"})
+<script>
+export default {{
+  name: '{name}'
+}}
+</script>
+
+<style scoped>
+.{name.lower()} {{
+  padding: 20px;
+}}
+</style>
+"""
+        else:
+            return {"error": "Framework not supported in this version"}
+            
+        return files
+
+    def generate_html(self, title: str) -> str:
+        """Generate HTML boilerplate"""
+        return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title}</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app"></div>
+    <script src="main.js"></script>
+</body>
+</html>"""

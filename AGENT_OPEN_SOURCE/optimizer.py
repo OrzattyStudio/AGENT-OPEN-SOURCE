@@ -1,60 +1,44 @@
 """
-SYNTHESIS - OptimizerAgent (Open Source Skeleton)
-Code optimization and performance tuning specialist
-
-This agent specializes in code optimization and performance tuning specialist.
-Framework skeleton - AI intelligence in full SYNTHESIS platform.
+SYNTHESIS - OptimizerAgent (Open Source Version)
+Code and Database query optimization
 """
 
 from typing import Dict, Any
 from .base_agent import BaseAgent, AgentCapability, AgentResult
 
-
 class OptimizerAgent(BaseAgent):
     """
-    OptimizerAgent - Code optimization and performance tuning specialist
-
-    Capabilities:
-    - performance optimization
-    - code refactoring
+    OptimizerAgent - Analyzes SQL/Code for efficiency.
     """
 
     def __init__(self):
         super().__init__(
             name="OptimizerAgent",
             capabilities=[
-                AgentCapability.PERFORMANCE_OPTIMIZATION, AgentCapability.CODE_REFACTORING
+                AgentCapability.PERFORMANCE_OPTIMIZATION, AgentCapability.DATABASE_DESIGN
             ]
         )
+        self.register_tool("optimize_sql", self.optimize_sql, "Suggests SQL indexing")
 
     async def execute(self, input_data: Dict[str, Any]) -> AgentResult:
         """
-        Execute code optimization and performance tuning specialist task.
-
-        Args:
-            input_data: Task-specific input data
-
-        Returns:
-            AgentResult with processed output
+        Execute optimization tasks.
+        Input: { "action": "optimize_sql", "query": "SELECT..." }
         """
-        # SKELETON FRAMEWORK - Actual AI logic in SYNTHESIS platform
-        #
-        # In the full platform, this agent would:
-        # - Execute specialized tasks
-        # - Process domain-specific logic
-        # - Generate optimized output
+        action = input_data.get("action")
+        
+        if action == "optimize_sql":
+            query = input_data.get("query", "")
+            advice = await self.execute_tool("optimize_sql", query=query)
+            return self.create_success_result(
+                data={"advice": advice},
+                message="SQL optimization advice generated"
+            )
+        return self.create_error_result("Unknown action", f"Action {action} not supported")
 
-        return self.create_success_result(
-            data={
-                "agent_type": "optimizer",
-                "capabilities": ['PERFORMANCE_OPTIMIZATION', 'CODE_REFACTORING'],
-                "status": "skeleton_framework",
-                "message": "AI logic implemented in full SYNTHESIS platform"
-            },
-            message="OptimizerAgent skeleton execution completed"
-        )
-
-
-# Example usage:
-# agent = OptimizerAgent()
-# result = await agent.safe_execute({"task": "example"})
+    def optimize_sql(self, query: str) -> str:
+        """Analyze SQL"""
+        self.log_thought("Analyzing SQL query for missing indexes...")
+        if "WHERE" in query:
+             return "Ensure columns in WHERE clause are indexed."
+        return "Query looks simple. Consider limit if table is large."

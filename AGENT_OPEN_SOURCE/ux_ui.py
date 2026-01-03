@@ -1,60 +1,48 @@
 """
-SYNTHESIS - UXUIAgent (Open Source Skeleton)
-User experience and interface design specialist
-
-This agent specializes in user experience and interface design specialist.
-Framework skeleton - AI intelligence in full SYNTHESIS platform.
+SYNTHESIS - UXUIAgent (Open Source Version)
+User Experience and Interface Design
 """
 
 from typing import Dict, Any
 from .base_agent import BaseAgent, AgentCapability, AgentResult
 
-
 class UXUIAgent(BaseAgent):
     """
-    UXUIAgent - User experience and interface design specialist
-
-    Capabilities:
-    - frontend development
-    - planning
+    UXUIAgent - Generates CSS color palettes and style guides.
     """
 
     def __init__(self):
         super().__init__(
             name="UXUIAgent",
             capabilities=[
-                AgentCapability.FRONTEND_DEVELOPMENT, AgentCapability.PLANNING
+                AgentCapability.FRONTEND_DEVELOPMENT, AgentCapability.CODE_GENERATION
             ]
         )
+        self.register_tool("generate_palette", self.generate_palette, "Generates CSS color variables")
 
     async def execute(self, input_data: Dict[str, Any]) -> AgentResult:
         """
-        Execute user experience and interface design specialist task.
-
-        Args:
-            input_data: Task-specific input data
-
-        Returns:
-            AgentResult with processed output
+        Execute UX/UI tasks.
+        Input: { "action": "palette", "base": "blue" }
         """
-        # SKELETON FRAMEWORK - Actual AI logic in SYNTHESIS platform
-        #
-        # In the full platform, this agent would:
-        # - Execute specialized tasks
-        # - Process domain-specific logic
-        # - Generate optimized output
+        action = input_data.get("action")
+        
+        if action == "palette":
+            base = input_data.get("base", "blue")
+            css = await self.execute_tool("generate_palette", base=base)
+            return self.create_success_result(
+                data={"css": css},
+                message=f"Generated {base} color palette"
+            )
+        return self.create_error_result("Unknown action", f"Action {action} not supported")
 
-        return self.create_success_result(
-            data={
-                "agent_type": "ux_ui",
-                "capabilities": ['FRONTEND_DEVELOPMENT', 'PLANNING'],
-                "status": "skeleton_framework",
-                "message": "AI logic implemented in full SYNTHESIS platform"
-            },
-            message="UXUIAgent skeleton execution completed"
-        )
-
-
-# Example usage:
-# agent = UXUIAgent()
-# result = await agent.safe_execute({"task": "example"})
+    def generate_palette(self, base: str) -> str:
+        """Generate CSS Palette"""
+        self.log_thought(f"Creating color palette based on {base}")
+        return f""":root {{
+  --primary: {base};
+  --primary-light: light{base};
+  --primary-dark: dark{base};
+  --text: #333;
+  --bg: #fff;
+}}"""

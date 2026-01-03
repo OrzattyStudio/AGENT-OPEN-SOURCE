@@ -1,60 +1,51 @@
 """
-SYNTHESIS - SchemaAgent (Open Source Skeleton)
-Data schema design and validation specialist
-
-This agent specializes in data schema design and validation specialist.
-Framework skeleton - AI intelligence in full SYNTHESIS platform.
+SYNTHESIS - SchemaAgent (Open Source Version)
+Data schema definition and validation
 """
 
 from typing import Dict, Any
 from .base_agent import BaseAgent, AgentCapability, AgentResult
-
+import json
 
 class SchemaAgent(BaseAgent):
     """
-    SchemaAgent - Data schema design and validation specialist
-
-    Capabilities:
-    - database design
-    - api design
+    SchemaAgent - Generates JSON Schemas.
     """
 
     def __init__(self):
         super().__init__(
             name="SchemaAgent",
             capabilities=[
-                AgentCapability.DATABASE_DESIGN, AgentCapability.API_DESIGN
+                AgentCapability.DATABASE_DESIGN, AgentCapability.CODE_GENERATION
             ]
         )
+        self.register_tool("generate_json_schema", self.generate_json_schema, "Generates JSON Schema from dict")
 
     async def execute(self, input_data: Dict[str, Any]) -> AgentResult:
         """
-        Execute data schema design and validation specialist task.
-
-        Args:
-            input_data: Task-specific input data
-
-        Returns:
-            AgentResult with processed output
+        Execute schema tasks.
+        Input: { "action": "json_schema", "example": {...} }
         """
-        # SKELETON FRAMEWORK - Actual AI logic in SYNTHESIS platform
-        #
-        # In the full platform, this agent would:
-        # - Execute specialized tasks
-        # - Process domain-specific logic
-        # - Generate optimized output
+        action = input_data.get("action")
+        
+        if action == "json_schema":
+            example = input_data.get("example", {})
+            schema = await self.execute_tool("generate_json_schema", example=example)
+            return self.create_success_result(
+                data={"schema": schema},
+                message="Generated JSON Schema"
+            )
+        return self.create_error_result("Unknown action", f"Action {action} not supported")
 
-        return self.create_success_result(
-            data={
-                "agent_type": "schema",
-                "capabilities": ['DATABASE_DESIGN', 'API_DESIGN'],
-                "status": "skeleton_framework",
-                "message": "AI logic implemented in full SYNTHESIS platform"
-            },
-            message="SchemaAgent skeleton execution completed"
-        )
-
-
-# Example usage:
-# agent = SchemaAgent()
-# result = await agent.safe_execute({"task": "example"})
+    def generate_json_schema(self, example: Dict[str, Any]) -> str:
+        """Generate JSON Schema"""
+        self.log_thought("Inferring JSON Schema from example...")
+        schema = {"type": "object", "properties": {}}
+        for k, v in example.items():
+            t = "string"
+            if isinstance(v, bool): t = "boolean"
+            elif isinstance(v, int): t = "integer"
+            elif isinstance(v, float): t = "number"
+            elif isinstance(v, list): t = "array"
+            schema["properties"][k] = {"type": t}
+        return json.dumps(schema, indent=2)

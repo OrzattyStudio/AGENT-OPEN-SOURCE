@@ -1,22 +1,14 @@
 """
-SYNTHESIS - IntegrationAgent (Open Source Skeleton)
-Third-party integrations and API connections specialist
-
-This agent specializes in third-party integrations and api connections specialist.
-Framework skeleton - AI intelligence in full SYNTHESIS platform.
+SYNTHESIS - IntegrationAgent (Open Source Version)
+System integration and API orchestration
 """
 
 from typing import Dict, Any
 from .base_agent import BaseAgent, AgentCapability, AgentResult
 
-
 class IntegrationAgent(BaseAgent):
     """
-    IntegrationAgent - Third-party integrations and API connections specialist
-
-    Capabilities:
-    - api design
-    - backend development
+    IntegrationAgent - Generates webhook handlers.
     """
 
     def __init__(self):
@@ -26,35 +18,30 @@ class IntegrationAgent(BaseAgent):
                 AgentCapability.API_DESIGN, AgentCapability.BACKEND_DEVELOPMENT
             ]
         )
+        self.register_tool("generate_webhook", self.generate_webhook, "Generates webhook receiver code")
 
     async def execute(self, input_data: Dict[str, Any]) -> AgentResult:
         """
-        Execute third-party integrations and api connections specialist task.
-
-        Args:
-            input_data: Task-specific input data
-
-        Returns:
-            AgentResult with processed output
+        Execute integration tasks.
+        Input: { "action": "webhook", "service": "stripe" }
         """
-        # SKELETON FRAMEWORK - Actual AI logic in SYNTHESIS platform
-        #
-        # In the full platform, this agent would:
-        # - Execute specialized tasks
-        # - Process domain-specific logic
-        # - Generate optimized output
+        action = input_data.get("action")
+        
+        if action == "webhook":
+            service = input_data.get("service", "generic")
+            code = await self.execute_tool("generate_webhook", service=service)
+            return self.create_success_result(
+                data={"code": code},
+                message=f"Generated webhook for {service}"
+            )
+        return self.create_error_result("Unknown action", f"Action {action} not supported")
 
-        return self.create_success_result(
-            data={
-                "agent_type": "integration",
-                "capabilities": ['API_DESIGN', 'BACKEND_DEVELOPMENT'],
-                "status": "skeleton_framework",
-                "message": "AI logic implemented in full SYNTHESIS platform"
-            },
-            message="IntegrationAgent skeleton execution completed"
-        )
-
-
-# Example usage:
-# agent = IntegrationAgent()
-# result = await agent.safe_execute({"task": "example"})
+    def generate_webhook(self, service: str) -> str:
+        """Generate webhook code"""
+        self.log_thought(f"Generating integration code for {service} webhook")
+        return f"""@app.route('/webhooks/{service}', methods=['POST'])
+def {service}_webhook():
+    payload = request.json
+    # Verify signature
+    # Process event
+    return jsonify(success=True)"""
