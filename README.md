@@ -1,4 +1,4 @@
-# SYNTHESIS - Agent Framework Open Source
+# SYNTHESIS - Agent Framework Open Source V2
 
 This folder contains the **PURE SKELETON FRAMEWORK** of SYNTHESIS's 49 specialized AI agents. This is the **architectural foundation ONLY** - **NO AI intelligence, orchestration, or proprietary logic included**.
 
